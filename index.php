@@ -1,3 +1,28 @@
+<?php 
+session_start();
+require 'db.php';
+
+if(isset($_POST['username']) && isset($_POST['password']) && isset($_POST['password-repeat']) && isset($_POST['email']) && isset($_POST['phone-number'])){
+    echo 'hi';
+
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+    $email = $_POST['email'];
+    $phone_number = $_POST['phone-number'];
+
+    if($_POST['password'] === $_POST['password-repeat']){
+        $sql = "insert into users(username, password, email, phone_number) values(:username, :password, :email, :phone_number)";
+        $statement = $connection->prepare($sql);
+        $state = $statement->execute([':username' => $username, ':password' => $password, ':email' => $email, ':phone_number' => $phone_number]);
+        
+        if ($state) {
+            $_SESSION['username'] = $username;
+            header('Location: welcome.php');
+        }
+    }
+}
+?>
+
 <html>
 <head>
     <style>
@@ -66,20 +91,20 @@
        <li>After submission, the page should be redirect to new page.</li>
        <li>The new page should display, "Hello (username)" </li>
 </ul>
-<form>
+<form method='post'>
     <div class="container">
         <h1>Register</h1>
         <p>Please fill in this form to create an account.</p>
         <hr>
 
-        <label for="email"><b>Email</b></label>
-        <input type="text" placeholder="Enter Email" name="email" required>
+        <label for="email"><b>Username</b></label>
+        <input type="text" placeholder="Enter Email" name="username" required>
 
         <label for="psw"><b>Password</b></label>
-        <input type="password" placeholder="Enter Password" name="psw" required>
+        <input type="password" placeholder="Enter Password" name="password" required>
 
         <label for="psw-repeat"><b>Repeat Password</b></label>
-        <input type="password" placeholder="Repeat Password" name="psw-repeat" required>
+        <input type="password" placeholder="Repeat Password" name="password-repeat" required>
 
         <label for="email"><b>Email</b></label>
         <input type="text" placeholder="Email" name="email" required>
@@ -88,7 +113,7 @@
         <input type="text" placeholder="phone-number" name="phone-number" required>
         <hr>
 
-        <p>By creating an account you agree to our <a href="#">Terms & Privacy</a>.</p>
+        <p>By creating an account you agree to our <a href="#">Terms & Privacy</a></p>
         <button type="submit" class="registerbtn">Register</button>
     </div>
 
@@ -98,14 +123,5 @@
 </form>
 </body>
 <?php
-try {
-    $conn = new PDO("mysql:host=$servername;dbname=myDB", $username, $password);
-    // set the PDO error mode to exception
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    echo "Connected successfully";
-    }
-catch(PDOException $e)
-    {
-    echo "Connection failed: " . $e->getMessage();
-    }
+
 
